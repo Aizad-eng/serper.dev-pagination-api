@@ -1,0 +1,189 @@
+{
+  "name": "Places API pagination template",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "9b8b8fb6-55b4-4e17-a9be-956493bb5e01",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/places",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $json.body.api_key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "page",
+              "value": "1"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.body.query }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          },
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "body",
+                    "name": "page",
+                    "value": "={{ $response.body.searchParameters.page+1 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ $response.body.places.length ==0 }}",
+              "limitPagesFetched": true,
+              "maxRequests": "={{ $json.body.num_pages_to_scrape }}"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -120,
+        500
+      ],
+      "id": "e4aaba70-12d4-4821-b4c3-35cbf590143c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "places",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        120,
+        500
+      ],
+      "id": "adbe8c28-1fd0-4b73-843d-bb1b5f64058e",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "c369935b-2929-4634-b6e6-3acb1b444a3b",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        500
+      ],
+      "id": "81d8b78b-00d7-46f8-9e6a-9eb157ff4869",
+      "name": "Webhook",
+      "webhookId": "c369935b-2929-4634-b6e6-3acb1b444a3b"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "kelnah.app.n8n.cloud",
+            "content-length": "61",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "34.201.107.37",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "923ffbf40432f27a-IAD",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "34.201.107.37, 172.68.15.187",
+            "x-forwarded-host": "kelnah.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-44-68df68bcf-shrw2",
+            "x-is-trusted": "yes",
+            "x-real-ip": "34.201.107.37"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "query": "cremation services near me Plymouth Massachusetts"
+          },
+          "webhookUrl": "https://kelnah.app.n8n.cloud/webhook/c369935b-2929-4634-b6e6-3acb1b444a3b",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e1cbb33c-c491-41e5-a369-0a91a2a84027",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c4703ff5ac35ac1c6578b3ad94dd71556820abbc9a4a2a247e67f7c4e24d24dd"
+  },
+  "id": "6P7gTXNHdGi7ZLPZ",
+  "tags": []
+}
