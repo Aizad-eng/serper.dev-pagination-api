@@ -24,7 +24,7 @@
           "parameters": [
             {
               "name": "X-API-KEY",
-              "value": "={{ $json.body.api_key }}"
+              "value": "={{ $json.body.serper_api_key }}"
             }
           ]
         },
